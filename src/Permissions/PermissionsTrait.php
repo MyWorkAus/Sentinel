@@ -202,12 +202,46 @@ trait PermissionsTrait
         }
 
         foreach ($prepared as $key => $value) {
-            if ((str_is($permission, $key) || str_is($key, $permission)) && $value === true) {
+            if (($this->str_is($permission, $key) || $this->str_is($key, $permission)) && $value === true) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    /**
+     * Taken from str_is/Str::is
+     * @param $pattern
+     * @param $value
+     * @return bool
+     */
+    protected function str_is($pattern, $value)
+    {
+        if ($pattern == $value) {
+            return true;
+        }
+        $on = false;
+//        if(strpos($pattern, 'contact') && strpos($pattern, 'view') && $value == '4.company.*.contact.6.view'){
+//            $on = true;
+//        }
+
+        $pattern = preg_quote($pattern, '#');
+
+        // Asterisks are translated into zero-or-more regular expression wildcards
+        // to make it convenient to check if the strings starts with the given
+        // pattern such as "library/*", making any string check convenient.
+        $pattern = str_replace('\*', '.*', $pattern);
+        $pattern = str_replace('\..*\.', '\.([0-9]+|id)\.', $pattern);
+        $value = str_replace('.*', '.id', $value);
+//        $pattern = str_replace('.id', '.[0-9]+', $pattern);
+        if($on) {
+//            dd([$pattern,$value]);
+
+//            dd(preg_match('#^'.$pattern.'\z#u', $value));
+        }
+
+        return (bool) preg_match('#^'.$pattern.'\z#u', $value);
     }
 
     /**
